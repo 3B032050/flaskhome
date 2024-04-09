@@ -9,7 +9,7 @@ def hello():
     return '<h1>Hello Flask</h1>'
 @app.route('/user/<name>')
 def user(name):
-    return render_template('index.html',name=name)
+    return render_template('user.html',name=name)
 @app.route('/user/<name>/<surname>')
 def surname(name,surname):
     return f'<h1>Hello,{name}{surname}!</h1>'
