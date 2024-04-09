@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" contnet="width=device-width, initial-scale=1">
+    {% block head %}
+    {% extends "base.html %}
+    <title>{% block title %}{% endblock %}</title>
+    {% block head %}
+    {{ super()}}
+    <style></style>
+
+    {% endblock %}
+</head>
+<body>
+    {% block body %}
+    <h1>Hello,{{name}}</h1>
+    <p>welcome to the world of flask!</p>
+    {% endblock %}
+</body>
+</html>
