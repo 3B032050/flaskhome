@@ -2,9 +2,14 @@
 {% extends "base.html" %}
 
 {% block title %}
-<!-- 在此添加您的標題 -->
+Flask Home
 {% endblock %}
 
+{% block content %}
+    <div class=""mt-4 p-5 bg-primary text-white rounded">
+        <h1 class="display-4" style="text-align: center;">Hello World</h1>
+    </div>
+{% endblock %}
 {% block head %}
 {{ super() }}
 <style>
