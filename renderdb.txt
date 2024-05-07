@@ -1,0 +1,6 @@
+Hostname dpg-cosslci1hbls73aqdq30-a
+Database smarthome_4mts
+Username admin
+Password YUUHST814lZfRPLvHCUGdSE6cZfp1OfN
+Internal Database URL postgres://admin:YUUHST814lZfRPLvHCUGdSE6cZfp1OfN@dpg-cosslci1hbls73aqdq30-a/smarthome_4mts
+External Database URL postgres://admin:YUUHST814lZfRPLvHCUGdSE6cZfp1OfN@dpg-cosslci1hbls73aqdq30-a.singapore-postgres.render.com/smarthome_4mts
