@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% block title %} GoGo智慧家庭 會員登入 {% endblock %}
 {% block style %}
@@ -19,7 +20,7 @@
 {% block content %}
 <div class="container-fluid">
     <div class="card" style="width: 18rem;">
-        <img class="profile-img-card" src="{{ url_for('static', filename='img/people.jpg') }}">
+        <img class="profile-img-card" src="{{ url_for('static', filename='img/user_2x.png') }}">
         <div class="card-body">
             <form class="form-horizontal" id="local-signin" action="/member/login" method="POST">
                 <div class="form-group">
