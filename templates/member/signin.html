@@ -7,19 +7,22 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-wrap: wrap;
+        margin-top: auto;
     }
-    img {
+    img.profile-img-card {
         width: 30%;
         height: 50;
         margin: auto;
         display: block;
-    }
+        }
 </style>
 
 {% endblock %}
 {% block content %}
 <div class="container-fluid">
-    <div class="card" style="width: 18rem;">
+    <div class="card w-50" >
+        <div class="card-header">GoGo智慧家庭-會員登入</div>
         <img class="profile-img-card" src="{{ url_for('static', filename='img/user_2x.png') }}">
         <div class="card-body">
             <form class="form-horizontal" id="local-signin" action="/member/login" method="POST">
@@ -40,7 +43,7 @@
         </div>
         <div class="not-member">
             <p>還不是會員<a href="/member/signup">加入會員</a></p>
-            <a href="/member/forgot-password" class="forgot-password"> |忘記密碼?
+            <a href="/member/forgot" class="forgot-password"> |忘記密碼?
             </a>
         </div>
     </div>

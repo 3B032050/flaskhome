@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 26 15:04:03 2024
@@ -7,9 +8,12 @@ Created on Tue Mar 26 15:04:03 2024
 
 from flask import Flask, render_template ,request
 from flask import redirect, url_for, session
+from flask_wtf import FlaskForm
+from wtforms import StringField, DateField, PasswordField, SubmitField, validators
 from datetime import timedelta
 import hashlib
 import psycopg2
+import psycopg2.extras
 import dbconn
 
 app = Flask(__name__, template_folder='templates',
@@ -27,11 +31,30 @@ def get_db_connection():
         password=dbconn.password)
     return conn
 
-@app.route('/')
-@app.route('/index',methods=['GET'])
+# Registration Form
+class RegistrationForm (FlaskForm):
+    username = StringField('帳號', [validators. DataRequired(),
+        validators.Length (min=4, max=50)])
+    userpass = PasswordField('密碼', [validators. DataRequired(),
+        validators.Length(min=8, max=50),
+        validators. EqualTo('confirm', message='密碼必須與確認密碼一樣')])
+    confirm = PasswordField('確認密碼')
+    name = StringField('姓名', [validators. DataRequired(), validators.Length(min=4, max=8)])
+    birthday = DateField('生日',format='%Y-%m-%d')
+    phone = StringField('電話', [validators.DataRequired(),
+        validators.Length(min=7, max=13)])
+    address = StringField('地址', [validators. Length (min=6, max=50)])
+    email = StringField('電子郵件',[validators. DataRequired(), validators. Length (min=6, max=50)])
+    submit = SubmitField('立即註冊')
+
+
+@app.route('/',methods=['GET'])
+def index():
+    return render_template('index.html')
+'''@app.route('/index',methods=['GET'])
 def index():
     name = request.args.get('name')
-    return render_template('index.html', **locals())
+    return render_template('index.html', **locals())'''
 
 @app.route('/shopping')
 def shopping():
@@ -79,7 +102,7 @@ def login():
         md.update(userpass.encode('utf-8'))
         hashpass = md.hexdigest()
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras. RealDictCursor)
         SQL = f"SELECT username, userpass FROM account WHERE username='{username}';"
         cursor.execute (SQL)
         user = cursor.fetchone()
@@ -88,7 +111,7 @@ def login():
         if not user:
             return redirect(url_for('signin'))
 
-        if (username == user [0] and hashpass == user[1]):
+        if (username == user ['username'] and hashpass == user['userpass']):
             session.parmanent = True
             session['username'] = username
             return redirect(url_for('user'))
@@ -129,6 +152,65 @@ def user(username):
     global name
     name = username
     return render_template('user.html', name=username)'''
+@app.route('/member/forgot')
+def forgot():
+    return 'Pass'
+@app.route('/product')
+def product():
+    return 'Pass'
+
+@app.route('/aboutus')
+def aboutus():
+    return 'Pass'
+@app.route('/contactus')
+def contactus():
+    return 'Pass'
+    
+@app.route('/member/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('signin'))
+
+@app.route('/member/signup')
+def signup():
+    regform = RegistrationForm()
+    return render_template('member/signup.html', form=regform)
+@app.route('/member/join', methods=["POST"])
+def join():
+    if request.method == 'POST':
+        regform = RegistrationForm()
+        if regform.validate_on_submit():
+            username = regform.username.data
+            userpass = regform.userpass.data
+            name = regform.name.data
+            birthday = regform.birthday.data
+            phone = regform.phone.data
+            address = regform.address.data
+            email = regform.email.data
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            SQL = "SELECT COUNT(*) FROM member"
+            cursor.execute(SQL)
+            count = cursor.fetchone()[0]
+            mid = 'm' + str(count + 1).zfill(4)
+            md = hashlib.md5()
+            md.update(userpass.encode('utf-8'))
+            hashpass = md.hexdigest()
+
+            SQL2 = f"INSERT INTO member VALUES('{mid}', '{name}', '{birthday}', '{phone}', '{address}', '{email}');"
+            cursor.execute(SQL2)
+
+            SQL3 = f"INSERT INTO account (mid, username, userpass) VALUES ('{mid}', '{username}', '{hashpass}');"
+            cursor.execute(SQL3)
+            conn.commit()
+            cursor.close()
+            conn.close()
+        return redirect(url_for('signin'))
+
+
+
+
+
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
