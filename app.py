@@ -11,6 +11,7 @@ from flask import redirect, url_for, session
 from flask_wtf import FlaskForm
 from wtforms import StringField, DateField, PasswordField, SubmitField, validators
 from datetime import timedelta
+from flask_sqlalchemy import SQLAlchemy
 import hashlib
 import psycopg2
 import psycopg2.extras
@@ -20,7 +21,10 @@ app = Flask(__name__, template_folder='templates',
             static_url_path='/static', static_folder='static')
 app.secret_key = 'fd4723e200261a2271ea912571eaaald'
 app.permanent_session_lifetime = timedelta(minutes=3)
-name = ''
+app.config['SQLALCHEMY_DATABASE_URI']=f'postgresql://{dbconn.user}:{dbconn.password}@{dbconn.host}/{dbconn.database}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
+
+db =SQLAlchemy(app)
 
 # DB Connection
 def get_db_connection():
@@ -31,6 +35,38 @@ def get_db_connection():
         password=dbconn.password)
     return conn
 
+
+# Member Class
+class Member(db.Model):
+    __table_name__ = 'member'
+    mid = db.Column(db.String(5), primary_key=True)
+    name = db.Column(db.String(8), unique=True, nullable=False)
+    birthday = db.Column(db.Date)
+    phone = db.Column(db.String(50))
+    email = db.Column(db.String(50), nullable=False)
+    role_id=db.Column(db.Integer, db.ForeignKey('role.id'))
+    accounts=db.relationship('Account',backref='member',uselist=False)
+    def __repr__(self):
+        return f'<Member {self.username}>'
+# Account Class
+class Account(db.Model):
+    __table_name__ = 'account'
+    aid = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    userpass = db.Column(db.String(50), nullable=False)
+    mid = db.Column(db.String(5), db. ForeignKey('member.mid'))
+
+    def __repr__(self):
+        return f'<Account {self.username}>'
+
+# Role Class
+class Role(db.Model):
+    __table_name__ = 'role'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, nullable=False)
+    members =db.relationship('Member',backref='role')
+    def __repr__(self):
+        return f'<Role {self.name}>'
 # Registration Form
 class RegistrationForm (FlaskForm):
     username = StringField('帳號', [validators. DataRequired(),
@@ -50,6 +86,7 @@ class RegistrationForm (FlaskForm):
 
 @app.route('/',methods=['GET'])
 def index():
+    db.create_all()
     return render_template('index.html')
 '''@app.route('/index',methods=['GET'])
 def index():
@@ -101,17 +138,20 @@ def login():
         md = hashlib.md5()
         md.update(userpass.encode('utf-8'))
         hashpass = md.hexdigest()
-        conn = get_db_connection()
+        '''conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=psycopg2.extras. RealDictCursor)
         SQL = f"SELECT username, userpass FROM account WHERE username='{username}';"
         cursor.execute (SQL)
         user = cursor.fetchone()
         cursor.close()
-        conn.close()
+        conn.close()'''
+        user=Account.query.filter_by(username=username).first()
         if not user:
             return redirect(url_for('signin'))
 
-        if (username == user ['username'] and hashpass == user['userpass']):
+
+        #if (username == user ['username'] and hashpass == user['userpass']):
+        if (username == user.username and hashpass == user.userpass):
             session.parmanent = True
             session['username'] = username
             return redirect(url_for('user'))
@@ -165,7 +205,7 @@ def aboutus():
 @app.route('/contactus')
 def contactus():
     return 'Pass'
-    
+
 @app.route('/member/logout')
 def logout():
     session.pop('username', None)
@@ -241,4 +281,5 @@ def user_surname(name,surname):
 def about():
     return '<h1>Hello</h1>'
 if __name__ == '__main__':
+    db.create_all()
     app.run()
