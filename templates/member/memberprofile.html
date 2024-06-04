@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}GoGo智慧家庭-修改會員資料{% endblock title %}
+{% block style %}
+<style>
+    .container  .card{
+        margin-top: 250px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="card main">
+        <h1 class="display-6">修改會員資料</h1>
+        <form method="POST" action="{{ url_for('memberprofile_modification') }}">
+            <div class="form-group row">
+                <label for="name" class="col-sm-2 col-form-labe">姓名</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name" name="name" value={{name}}>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="birthday" class="col-sm-2 col-form-labe">生日</label>
+                <div class="col-sm-10">
+                    <input type="date" class="form-control" id="birthday" name="birthday" value={{birthday}}>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="phone" class="col-sm-2 col-form-labe">電話</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="phone" name="phone" value={{phone}}>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="address" class="col-sm-2 col-form-labe">地址</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="address" name="address" value={{address}}>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="email" class="col-sm-2 col-form-labe">電子郵件</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" id="email" name="email" value={{email}}>
+                </div>
+            </div>
+            <div class="form-group row">
+                <button type="submit" class="btn btn-info btn-block">確定修改</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

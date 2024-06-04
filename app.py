@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 26 15:04:03 2024
@@ -42,7 +41,8 @@ class Member(db.Model):
     mid = db.Column(db.String(5), primary_key=True)
     name = db.Column(db.String(8), unique=True, nullable=False)
     birthday = db.Column(db.Date)
-    phone = db.Column(db.String(50))
+    phone = db.Column(db.String(50), nullable=False)
+    address = db.Column(db.String(50))
     email = db.Column(db.String(50), nullable=False)
     role_id=db.Column(db.Integer, db.ForeignKey('role.id'))
     accounts=db.relationship('Account',backref='member',uselist=False)
@@ -227,7 +227,7 @@ def join():
             phone = regform.phone.data
             address = regform.address.data
             email = regform.email.data
-            conn = get_db_connection()
+            '''conn = get_db_connection()
             cursor = conn.cursor()
             SQL = "SELECT COUNT(*) FROM member"
             cursor.execute(SQL)
@@ -244,7 +244,17 @@ def join():
             cursor.execute(SQL3)
             conn.commit()
             cursor.close()
-            conn.close()
+            conn.close()'''
+            count = len(Member.query.all())
+            mid = 'm' + str(count + 1).zfill(4)
+            md = hashlib.md5()
+            md.update(userpass.encode('utf-8'))
+            userpass = md.hexdigest()
+            member_user = Member(mid=mid, name=name, birthday=birthday, phone=phone, address=address, email=email)
+            account_user = Account (username=username, userpass=userpass, mid=mid)
+            db.session.add(member_user)
+            db.session.add(account_user)
+            db.session.commit()
         return redirect(url_for('signin'))
 
 
@@ -280,6 +290,62 @@ def user_surname(name,surname):
 @app.route('/about')
 def about():
     return '<h1>Hello</h1>'
+
+
+
+
+@app.route('/member/memberprofile')
+def memberprofile():
+    username = session['username']
+    account = Account.query.filter_by(username=username).first()
+    mid =account.mid
+
+    member = Member.query.filter_by(mid=mid).first()
+    name = member.name
+    birthday = member.birthday
+    phone = member.phone
+    address = member.address
+    email = member.email
+    return render_template('member/memberprofile.html', name=name, birthday=birthday, phone=phone, address=address, email=email)
+@app.route
+@app.route('/member/memberprofile_modification', methods=['POST'])
+def memberprofile_modification():
+    if request.method == 'POST':
+        username = session['username']
+        account = Account.query.filter_by(username=username).first()
+        mid = account.mid
+        member = Member.query.filter_by(mid=mid).first()
+        member.name = request.values['name']
+        member.birthday = request.values['birthday']
+        member.phone = request.values['phone']
+        member.address = request.values['address']
+        member.email = request.values['email']
+        db.session.add(member)
+        db.session.commit()
+    return redirect(url_for('user'))
+
+@app.route('/member/memberpassword')
+def memberpassword():
+    username = session ['username']
+    return render_template('member/memberpassword.html')
+
+@app.route('/member/memberpassword_modification', methods=['POST'])
+def memberpassword_modification():
+    if request.method == 'POST':
+        username = session['username']
+        account = Account.query.filter_by(username=username).first()
+        oldpassword = request.values['oldpassword']
+        newpassword = request.values['newpassword']
+        newpassword2 = request.values['newpassword2']
+        md = hashlib.md5()
+        md.update(newpassword.encode('utf-8'))
+        userpass = md.hexdigest()
+    if (oldpassword != newpassword and newpassword == newpassword2):
+        account.userpass = userpass
+        db.session.add(account)
+        db.session.commit()
+    return redirect(url_for('user'))
+
 if __name__ == '__main__':
     db.create_all()
     app.run()

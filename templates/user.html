@@ -33,5 +33,6 @@
     <h1 style="text-align: center">Hello1, {{ name | capitalize }}!</h1>
     <p style="text-align: center">歡迎{{ name }}來到會員專區!</p>
     <h1 style="text-align: center">{{ message }}!</h1>
-
+    <a href="{{ url_for('memberprofile') }}"><h1 style="text-align:center">修改會員資料</h1></a>
+    <a href="{{ url_for('memberpassword') }}"><h1 style="text-align:center">修改會員密碼</h1></a>
 {% endblock %}
